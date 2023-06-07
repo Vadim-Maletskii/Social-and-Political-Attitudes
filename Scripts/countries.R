@@ -11,3 +11,11 @@ euro2018$isocntry
 means <- aggregate(qc5_6 ~ isocntry, data = euro2018, FUN = mean)
 
 print(means)
+
+# Sort the means in ascending order
+means <- means[order(means$qc5_6), ]
+
+# Create a bar plot of the means in ascending order
+barplot(means$qc5_6, names.arg = means$isocntry,
+        xlab = "isocntry", ylab = "Mean qc5_6",
+        main = "Means of qc5_6 across isocntry ", las = 2)
