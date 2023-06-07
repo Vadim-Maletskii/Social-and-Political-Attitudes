@@ -37,6 +37,8 @@ summary(euro$qa3.3)
 summary(euro$qa3.15)
 summary(euro$qa3.16)
 
+range(euro$qa8_4)
+
 summary(euro$qa8_4)
 summary(euro$qa8_8)
 summary(euro$qa8_9)
@@ -45,11 +47,24 @@ summary(euro$qa8_9)
 all_variables <- euro %>% select(isocntry, qa3.3, qa3.15, qa3.16, qa6a_4, qa6a_12, qa8_4, qa8_8, qa8_9,
                                  qe2_1, qe2_2, qe2_3, qe2_4, qe2_5, qe2_6)
 nona_variables <- na.omit(all_variables)
+nona_variables <- filter(nona_variables, !(qa6a_4 %in% c(3,9)), qa6a_12 != 3, !(qa8_4 %in% c(5,9)),
+                              qa8_8 != 5, qa8_9 != 5)
 
 # Only dependent variables
-dep_vars <- euro %>% select(qe2_1, qe2_2, qe2_3, qe2_4, qe2_5, qe2_6)
-dep_vars <- na.omit(dep_vars)
+dep_vars <- nona_variables %>% select(qe2_1, qe2_2, qe2_3, qe2_4, qe2_5, qe2_6)
 
 # Factor analysis
 dep_cor <- cor(dep_vars)
+dep_cor
 scree(dep_cor)
+principal(dep_cor, nfactors = 1, rotate='varimax')
+
+# If we group the dependent variables together and make a new variable (sum of them)
+nona_variables$dep_sum <- nona_variables$qe2_1 + nona_variables$qe2_2 + nona_variables$qe2_3 + 
+  nona_variables$qe2_4 + nona_variables$qe2_5 + nona_variables$qe2_6
+table(nona_variables$dep_sum)
+means_dep_vars <- aggregate(dep_sum ~ isocntry, data = nona_variables, FUN = mean)
+means_dep_vars <- means_dep_vars[order(means_dep_vars$dep_sum), ]
+barplot(means_dep_vars$dep_sum, names.arg = means_dep_vars$isocntry,
+        xlab = "isocntry", ylab = "Sum of dep vars",
+        main = "Means of dep vars across isocntry ", las = 2)
