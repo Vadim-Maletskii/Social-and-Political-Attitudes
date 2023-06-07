@@ -8,3 +8,6 @@ summary(euro2018$qc5_6)
 hist(euro2018$qc5_6)
 euro2018$isocntry
 
+means <- aggregate(qc5_6 ~ isocntry, data = euro2018, FUN = mean)
+
+print(means)
