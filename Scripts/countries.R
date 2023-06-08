@@ -7,7 +7,23 @@ library(psych)
 
 euro2018<- read_sav('Data_preproc/euro2018.sav') #Eurobarometer 90.2 (2018)
 
+euro = read_sav('Data_preproc/euro.sav')
+
 euro2018 <- subset(euro2018, !grepl("5", qc5_6))
+
+# Independent + dependent variables
+all_variables <- euro %>% select(isocntry, qa3.3, qa3.15, qa3.16, qa6a_4, qa6a_12, qa8_4, qa8_8, qa8_9,
+                                 qe2_1, qe2_2, qe2_3, qe2_4, qe2_5, qe2_6)
+nona_variables <- na.omit(all_variables)
+nona_variables <- filter(nona_variables, !(qa6a_4 %in% c(3,9)), qa6a_12 != 3, !(qa8_4 %in% c(5,9)),
+                         qa8_8 != 5, qa8_9 != 5)
+
+# Find unique values of isocntry in the dataset euro
+unique_countries <- unique(nona_variables$isocntry)
+
+# Filter dataset euro2018 to keep only the rows with isocntry values in unique_countries
+euro2018 <- subset(euro2018, isocntry %in% unique_countries)
+
 
 summary(euro2018$qc5_6)
 hist(euro2018$qc5_6)
@@ -26,7 +42,6 @@ barplot(means$qc5_6, names.arg = means$isocntry,
         xlab = "isocntry", ylab = "Mean qc5_6",
         main = "Means of qc5_6 across isocntry ", las = 2)
 
-euro = read_sav('Data_preproc/euro.sav')
 
 # depended: qe2_1, qe2_2, qe2_3, qe2_4, qe2_5, qe2_6
 # main problems: qa3.3 (rising prices), qa3.15 (energy), qa3.16 (international situation)
@@ -47,12 +62,6 @@ summary(euro$qa8_4)
 summary(euro$qa8_8)
 summary(euro$qa8_9)
 
-# Independent + dependent variables
-all_variables <- euro %>% select(isocntry, qa3.3, qa3.15, qa3.16, qa6a_4, qa6a_12, qa8_4, qa8_8, qa8_9,
-                                 qe2_1, qe2_2, qe2_3, qe2_4, qe2_5, qe2_6)
-nona_variables <- na.omit(all_variables)
-nona_variables <- filter(nona_variables, !(qa6a_4 %in% c(3,9)), qa6a_12 != 3, !(qa8_4 %in% c(5,9)),
-                              qa8_8 != 5, qa8_9 != 5)
 
 # Only dependent variables
 dep_vars <- nona_variables %>% select(qe2_1, qe2_2, qe2_3, qe2_4, qe2_5, qe2_6)
@@ -63,7 +72,7 @@ dep_cor
 scree(dep_cor)
 principal(dep_cor, nfactors = 1, rotate='varimax')
 
-If we group the dependent variables together and make a new variable (sum of them) ----
+# If we group the dependent variables together and make a new variable (sum of them) ----
 nona_variables$dep_sum <- nona_variables$qe2_1 + nona_variables$qe2_2 + nona_variables$qe2_3 +
   nona_variables$qe2_4 + nona_variables$qe2_5 + nona_variables$qe2_6
 table(nona_variables$dep_sum)
