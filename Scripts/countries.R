@@ -16,6 +16,7 @@ euro2018$isocntry
 means <- aggregate(qc5_6 ~ isocntry, data = euro2018, FUN = mean)
 
 print(means)
+unique(euro$country)
 
 # Sort the means in ascending order
 means <- means[order(means$qc5_6), ]
@@ -62,26 +63,26 @@ dep_cor
 scree(dep_cor)
 principal(dep_cor, nfactors = 1, rotate='varimax')
 
-# If we group the dependent variables together and make a new variable (sum of them)
-# nona_variables$dep_sum <- nona_variables$qe2_1 + nona_variables$qe2_2 + nona_variables$qe2_3 + 
-#   nona_variables$qe2_4 + nona_variables$qe2_5 + nona_variables$qe2_6
-# table(nona_variables$dep_sum)
-# means_dep_vars <- aggregate(dep_sum ~ isocntry, data = nona_variables, FUN = mean)
-# means_dep_vars <- means_dep_vars[order(means_dep_vars$dep_sum), ]
-# barplot(means_dep_vars$dep_sum, names.arg = means_dep_vars$isocntry,
-#         xlab = "isocntry", ylab = "Sum of dep vars",
-#         main = "Means of dep vars across isocntry ", las = 2)
-# 
-# mean(nona_variables$dep_sum)
-# abline(h=mean(nona_variables$dep_sum), lty=2)
-# nona_variables %>% group_by(qa3.3) %>% summarise(mean_dep_sum = mean(dep_sum))
-# nona_variables %>% group_by(qa3.15) %>% summarise(mean_dep_sum = mean(dep_sum))
-# sum(is.na(euro$qa8_5))
-# inter0 <- nona_variables %>% filter(qa3.16 == 0) %>% select(dep_sum)
-# inter1 <- nona_variables %>% filter(qa3.16 == 1) %>% select(dep_sum)
-# t.test(inter0, inter1)
-# boxplot()
-# sum(is.na(euro$qe2_1))
+If we group the dependent variables together and make a new variable (sum of them) ----
+nona_variables$dep_sum <- nona_variables$qe2_1 + nona_variables$qe2_2 + nona_variables$qe2_3 +
+  nona_variables$qe2_4 + nona_variables$qe2_5 + nona_variables$qe2_6
+table(nona_variables$dep_sum)
+means_dep_vars <- aggregate(dep_sum ~ isocntry, data = nona_variables, FUN = mean)
+means_dep_vars <- means_dep_vars[order(means_dep_vars$dep_sum), ]
+barplot(means_dep_vars$dep_sum, names.arg = means_dep_vars$isocntry,
+        xlab = "isocntry", ylab = "Sum of dep vars",
+        main = "Means of dep vars across isocntry ", las = 2)
+
+mean(nona_variables$dep_sum)
+abline(h=mean(nona_variables$dep_sum), lty=2)
+nona_variables %>% group_by(qa3.3) %>% summarise(mean_dep_sum = mean(dep_sum))
+nona_variables %>% group_by(qa3.15) %>% summarise(mean_dep_sum = mean(dep_sum))
+sum(is.na(euro$qa8_5))
+inter0 <- nona_variables %>% filter(qa3.16 == 0) %>% select(dep_sum)
+inter1 <- nona_variables %>% filter(qa3.16 == 1) %>% select(dep_sum)
+t.test(inter0, inter1)
+boxplot()
+sum(is.na(euro$qe2_1))
 
 test <- euro %>% select(isocntry, qe2_1)
 test <- test[is.na(test$qe2_1), ]
@@ -99,3 +100,16 @@ table(euro$isocntry)
 # "IS" Iceland
 # "CH" Switzerland
 # "NO" Norway
+
+# qe1_2 graph (satisfaction in) ----
+all_response <- euro %>% select(isocntry, qa3.3, qa3.15, qa3.16, qa6a_4, qa6a_12, qa8_8, qa8_9,
+                                 qe1_2)
+means_response <- aggregate(qe1_2 ~ isocntry, data = all_response, FUN = mean)
+means_response <- means_response[order(means_response$qe1_2), ]
+barplot(means_response$qe1_2, names.arg = means_response$isocntry,
+        xlab = "isocntry", ylab = "Sum of dep vars",
+        main = "Means of dep vars across isocntry ", las = 2)
+
+
+summary(lm(dep_sum ~ qa3.3 + qa3.15 + qa3.16, data=nona_variables))
+
