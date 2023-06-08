@@ -32,6 +32,9 @@ euro = read_sav('Data_preproc/euro.sav')
 # qa6a_4 (trust in army), qa6a_12 (trust in NATO)
 # qa8_4 (EU efficient), qa8_8 (EU reacting fast in crises), qa8_9 (EU united)
 # Country: isocntry
+# qd3a Most positive EU result
+# qe1_2 Satisfaction with EU response
+table(euro$qd3t.11)
 
 summary(euro$qa3.3)
 summary(euro$qa3.15)
@@ -60,18 +63,39 @@ scree(dep_cor)
 principal(dep_cor, nfactors = 1, rotate='varimax')
 
 # If we group the dependent variables together and make a new variable (sum of them)
-nona_variables$dep_sum <- nona_variables$qe2_1 + nona_variables$qe2_2 + nona_variables$qe2_3 + 
-  nona_variables$qe2_4 + nona_variables$qe2_5 + nona_variables$qe2_6
-table(nona_variables$dep_sum)
-means_dep_vars <- aggregate(dep_sum ~ isocntry, data = nona_variables, FUN = mean)
-means_dep_vars <- means_dep_vars[order(means_dep_vars$dep_sum), ]
-barplot(means_dep_vars$dep_sum, names.arg = means_dep_vars$isocntry,
-        xlab = "isocntry", ylab = "Sum of dep vars",
-        main = "Means of dep vars across isocntry ", las = 2)
+# nona_variables$dep_sum <- nona_variables$qe2_1 + nona_variables$qe2_2 + nona_variables$qe2_3 + 
+#   nona_variables$qe2_4 + nona_variables$qe2_5 + nona_variables$qe2_6
+# table(nona_variables$dep_sum)
+# means_dep_vars <- aggregate(dep_sum ~ isocntry, data = nona_variables, FUN = mean)
+# means_dep_vars <- means_dep_vars[order(means_dep_vars$dep_sum), ]
+# barplot(means_dep_vars$dep_sum, names.arg = means_dep_vars$isocntry,
+#         xlab = "isocntry", ylab = "Sum of dep vars",
+#         main = "Means of dep vars across isocntry ", las = 2)
+# 
+# mean(nona_variables$dep_sum)
+# abline(h=mean(nona_variables$dep_sum), lty=2)
+# nona_variables %>% group_by(qa3.3) %>% summarise(mean_dep_sum = mean(dep_sum))
+# nona_variables %>% group_by(qa3.15) %>% summarise(mean_dep_sum = mean(dep_sum))
+# sum(is.na(euro$qa8_5))
+# inter0 <- nona_variables %>% filter(qa3.16 == 0) %>% select(dep_sum)
+# inter1 <- nona_variables %>% filter(qa3.16 == 1) %>% select(dep_sum)
+# t.test(inter0, inter1)
+# boxplot()
+# sum(is.na(euro$qe2_1))
 
-head(euro$country)
-mean(nona_variables$dep_sum)
-abline(h=mean(nona_variables$dep_sum), lty=2)
-nona_variables %>% group_by(qa3.3) %>% summarise(mean_dep_sum = mean(dep_sum))
-nona_variables %>% group_by(qa3.15) %>% summarise(mean_dep_sum = mean(dep_sum))
-nona_variables %>% group_by(qa3.16) %>% summarise(mean_dep_sum = mean(dep_sum))
+test <- euro %>% select(isocntry, qe2_1)
+test <- test[is.na(test$qe2_1), ]
+table(euro$qa3.3)
+table(euro$isocntry)
+
+# "AL" Albania
+# "BA" Bosnia and Herzegovina
+# "GB" Great Britain
+# "ME" Montenegro
+# "MK" North Macedonia
+# "RS" Kosovo
+# "CY-TCC" Cyprus TCC
+# "TR" Turkey
+# "IS" Iceland
+# "CH" Switzerland
+# "NO" Norway
