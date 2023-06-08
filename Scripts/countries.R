@@ -122,3 +122,16 @@ barplot(means_response$qe1_2, names.arg = means_response$isocntry,
 
 summary(lm(dep_sum ~ qa3.3 + qa3.15 + qa3.16, data=nona_variables))
 
+# Army to factor
+nona_variables$qa6a_4 <- factor(nona_variables$qa6a_4)
+levels(nona_variables$qa6a_4) <- c("1", "0")
+boxplot(dep_sum ~ qa6a_4, data=nona_variables)
+range(nona_variables$qa6a_4)
+summary(nona_variables$qa6a_4)
+army <- aggregate(dep_sum ~ qa6a_4, data = nona_variables, FUN = mean)
+
+# NATO to factor
+nona_variables$qa6a_12 <- factor(nona_variables$qa6a_12)
+levels(nona_variables$qa6a_12) <- c("1", "0")
+boxplot(dep_sum ~ qa6a_12, data=nona_variables)
+nato <- aggregate(dep_sum ~ qa6a_12, data = nona_variables, FUN = mean)
