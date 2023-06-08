@@ -11,6 +11,16 @@ euro = read_sav('Data_preproc/euro.sav')
 
 euro2018 <- subset(euro2018, !grepl("5", qc5_6))
 
+# Recode variable qc5_6 in dataset euro2018
+euro2018 <- euro2018 %>%
+  mutate(qc5_6 = case_when(
+    qc5_6 == 1 ~ 4,
+    qc5_6 == 2 ~ 3,
+    qc5_6 == 3 ~ 2,
+    qc5_6 == 4 ~ 1,
+    TRUE ~ qc5_6
+  ))
+
 # Independent + dependent variables
 all_variables <- euro %>% select(isocntry, qa3.3, qa3.15, qa3.16, qa6a_4, qa6a_12, qa8_4, qa8_8, qa8_9,
                                  qe2_1, qe2_2, qe2_3, qe2_4, qe2_5, qe2_6)
