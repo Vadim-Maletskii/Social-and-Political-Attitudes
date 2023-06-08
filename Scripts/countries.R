@@ -3,8 +3,9 @@ library(haven)
 library(dplyr)
 # install.packages('psych')
 library(psych)
+library(ggplot2)
 
-
+# Data cleaning ---- 
 euro2018<- read_sav('Data_preproc/euro2018.sav') #Eurobarometer 90.2 (2018)
 
 euro = read_sav('Data_preproc/euro.sav')
@@ -39,6 +40,7 @@ summary(euro2018$qc5_6)
 hist(euro2018$qc5_6)
 euro2018$isocntry
 
+# Preparation to plot creation ---- 
 means <- aggregate(qc5_6 ~ isocntry, data = euro2018, FUN = mean)
 
 print(means)
@@ -47,12 +49,49 @@ unique(euro$country)
 # Sort the means in ascending order
 means <- means[order(means$qc5_6), ]
 
+# Boxplot colored ---- 
+# Create a new variable for the groups
+means$region <- "Other"
+
+means$region[means$isocntry %in% c("AT", "BE", "DE-W", "DE-E", "DK", "FR", "IE", "LU", "NL")] <- "Western Europe"
+
+means$region[means$isocntry %in% c("CY", "ES", "GR", "HR", "IT", "PT", "MT")] <- "Southern Europe"
+
+means$region[means$isocntry %in% c("BG", "CZ", "EE", "HU", "LT", "LV", "PL", "RO", "SI", "SK")] <- "Eastern Europe"
+
+means$region[means$isocntry %in% c("FI", "SE")] <- "Northern Europe"
+
+# Define colors for each region
+colors <- c("red", "blue", "green", "orange")
+
+# Create boxplot with colors
+boxplot(qc5_6 ~ region, data = means, col = colors,
+        xlab = "Region", ylab = "qc5_6",
+        main = "Boxplot of qc5_6 by Region")
+
+# Barplot colored ---- 
+
+# Create a data frame with the means data
+bar_col <- data.frame(isocntry = means$isocntry, qc5_6 = means$qc5_6, region = means$region)
+
+# Define the colors based on the unique values of means$region
+colors <- c("red", "blue", "green", "orange")
+
+# Create the barplot using ggplot2 with ordered bars
+ggplot(bar_col, aes(x = reorder(isocntry, qc5_6), y = qc5_6, fill = as.factor(region))) +
+  geom_bar(stat = "identity") +
+  scale_fill_manual(values = colors) +
+  labs(x = "isocntry", y = "Mean qc5_6", title = "Means of qc5_6 across isocntry") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+# barplot without colour ---- 
 # Create a bar plot of the means in ascending order
+
 barplot(means$qc5_6, names.arg = means$isocntry,
         xlab = "isocntry", ylab = "Mean qc5_6",
         main = "Means of qc5_6 across isocntry ", las = 2)
 
-
+# Dep and Ind VARIABLES ---- 
 # depended: qe2_1, qe2_2, qe2_3, qe2_4, qe2_5, qe2_6
 # main problems: qa3.3 (rising prices), qa3.15 (energy), qa3.16 (international situation)
 # qa6a_4 (trust in army), qa6a_12 (trust in NATO)
@@ -76,7 +115,7 @@ summary(euro$qa8_9)
 # Only dependent variables
 dep_vars <- nona_variables %>% select(qe2_1, qe2_2, qe2_3, qe2_4, qe2_5, qe2_6)
 
-# Factor analysis
+# Factor analysis ---- 
 dep_cor <- cor(dep_vars)
 dep_cor
 scree(dep_cor)
@@ -88,6 +127,31 @@ nona_variables$dep_sum <- nona_variables$qe2_1 + nona_variables$qe2_2 + nona_var
 table(nona_variables$dep_sum)
 means_dep_vars <- aggregate(dep_sum ~ isocntry, data = nona_variables, FUN = mean)
 means_dep_vars <- means_dep_vars[order(means_dep_vars$dep_sum), ]
+
+# Barplot colored ----
+means_dep_vars$region <- "Other"
+
+means_dep_vars$region[means_dep_vars$isocntry %in% c("AT", "BE", "DE-W", "DE-E", "DK", "FR", "IE", "LU", "NL")] <- "Western Europe"
+
+means_dep_vars$region[means_dep_vars$isocntry %in% c("CY", "ES", "GR", "HR", "IT", "PT", "MT")] <- "Southern Europe"
+
+means_dep_vars$region[means_dep_vars$isocntry %in% c("BG", "CZ", "EE", "HU", "LT", "LV", "PL", "RO", "SI", "SK")] <- "Eastern Europe"
+
+means_dep_vars$region[means_dep_vars$isocntry %in% c("FI", "SE")] <- "Northern Europe"
+
+
+bar_col1 <- data.frame(isocntry = means_dep_vars$isocntry, means = means_dep_vars$dep_sum, region = means_dep_vars$region)
+
+# Define the colors based on the unique values of means$region
+colors <- c("red", "blue", "green", "orange")
+
+# Create the barplot using ggplot2 with ordered bars
+ggplot(bar_col1, aes(x = reorder(isocntry, means), y = means, fill = as.factor(region))) +
+  geom_bar(stat = "identity") +
+  scale_fill_manual(values = colors) +
+  labs(x = "isocntry", y = "Mean", title = "Means across isocntry") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+# barplot without colors
 barplot(means_dep_vars$dep_sum, names.arg = means_dep_vars$isocntry,
         xlab = "isocntry", ylab = "Sum of dep vars",
         main = "Means of dep vars across isocntry ", las = 2)
