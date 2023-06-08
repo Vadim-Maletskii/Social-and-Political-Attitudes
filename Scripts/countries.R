@@ -68,3 +68,10 @@ means_dep_vars <- means_dep_vars[order(means_dep_vars$dep_sum), ]
 barplot(means_dep_vars$dep_sum, names.arg = means_dep_vars$isocntry,
         xlab = "isocntry", ylab = "Sum of dep vars",
         main = "Means of dep vars across isocntry ", las = 2)
+
+head(euro$country)
+mean(nona_variables$dep_sum)
+abline(h=mean(nona_variables$dep_sum), lty=2)
+nona_variables %>% group_by(qa3.3) %>% summarise(mean_dep_sum = mean(dep_sum))
+nona_variables %>% group_by(qa3.15) %>% summarise(mean_dep_sum = mean(dep_sum))
+nona_variables %>% group_by(qa3.16) %>% summarise(mean_dep_sum = mean(dep_sum))
