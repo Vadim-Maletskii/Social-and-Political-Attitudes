@@ -23,6 +23,7 @@ euro2018 <- euro2018 %>%
   ))
 # Independent + dependent variables
 all_variables <- euro %>% select(isocntry, qa3.3, qa3.15, qa3.16, qa6a_4, qa6a_12, qa8_4, qa8_8, qa8_9,
+                                 qd6.3, qd6.6, qd6.8,
                                  qe2_1, qe2_2, qe2_3, qe2_4, qe2_5, qe2_6)
 nona_variables <- na.omit(all_variables)
 nona_variables <- filter(nona_variables, !(qa6a_4 %in% c(3,9)), qa6a_12 != 3, !(qa8_4 %in% c(5,9)),
@@ -256,7 +257,12 @@ problems_summed %>% ggplot() + geom_boxplot(aes(x= indep_sum, y=dep_sum, group=i
 # boxplot(combined_problems, col = "skyblue", main = "Relationship between the person's main national problem\nand their attitude to EU's response to the invasion",
 #         ylab='Mean of combined dependent variables', xlab='Main national problem (according to the respondent)')
 
-
+# Personal values ----
+pers_values <- nona_variables %>% select(qd6.3, qd6.6, qd6.8, dep_sum)
+pers_values$indep_sum <- pers_values$qd6.3 + pers_values$qd6.6 + pers_values$qd6.8
+pers_values <- pers_values %>% select(indep_sum, dep_sum)
+pers_values %>% group_by(indep_sum) %>% summarise(mean = mean(dep_sum))
+pers_values %>% ggplot() + geom_boxplot(aes(x= indep_sum, y=dep_sum, group=indep_sum))
 # EU variables and dep_sum ----
 eu_dep <- nona_variables %>% select(qa8_4, qa8_8, qa8_9, dep_sum)
 eu_dep$indep_sum <- eu_dep$qa8_4 + eu_dep$qa8_8 + eu_dep$qa8_9
@@ -268,6 +274,11 @@ summary(lm(eu_dep$dep_sum ~ eu_dep$indep_sum))
 eu_dep_box <- eu_dep %>% select(indep_sum, dep_sum) %>% filter(indep_sum %in% c(3, 6, 9, 12))
 eu_dep_box %>% ggplot() + geom_boxplot(aes(x= indep_sum, y=dep_sum, group=indep_sum))
 
+
+lm_data <- data.frame(pers_values=pers_values$indep_sum, problems=problems_summed$indep_sum, eu=eu_dep$indep_sum,
+                      dep=eu_dep$dep_sum)
+summary(lm(dep ~ pers_values*problems*eu, data=lm_data))
+
 # qe1_2 graph (satisfaction in) ----
 all_response <- euro %>% select(isocntry, qa3.3, qa3.15, qa3.16, qa6a_4, qa6a_12, qa8_8, qa8_9,
                                  qe1_2)
@@ -276,8 +287,6 @@ means_response <- means_response[order(means_response$qe1_2), ]
 barplot(means_response$qe1_2, names.arg = means_response$isocntry,
         xlab = "isocntry", ylab = "Sum of dep vars",
         main = "Means of dep vars across isocntry ", las = 2)
-
-
 
 # NOT NEEDED ----
 # Army and NATO
