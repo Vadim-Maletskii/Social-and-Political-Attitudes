@@ -205,6 +205,7 @@ nona_variables$dep_sum <- nona_variables$qe2_1 + nona_variables$qe2_2 + nona_var
   nona_variables$qe2_4 + nona_variables$qe2_5 + nona_variables$qe2_6
 nona_variables$dep_sum <- nona_variables$dep_sum - 6
 range(nona_variables$dep_sum)
+hist(nona_variables$dep_sum)
 
 table(nona_variables$dep_sum)
 means_dep_vars <- aggregate(dep_sum ~ isocntry, data = nona_variables, FUN = mean)
@@ -288,6 +289,8 @@ summary(lm(eu_dep$dep_sum ~ eu_dep$indep_sum))
 # Boxplot DRAFT
 eu_dep_box <- eu_dep %>% select(indep_sum, dep_sum) %>% filter(indep_sum %in% c(0, 3, 6, 9))
 eu_dep_box %>% ggplot() + geom_boxplot(aes(x= indep_sum, y=dep_sum, group=indep_sum))
+eu_dep_box %>% group_by(indep_sum) %>% summarise(mean = mean(dep_sum))
+table(nona_variables$dep_sum)
 
 
 lm_data <- data.frame(pers_values=pers_values$indep_sum, problems=problems_summed$indep_sum, eu=eu_dep$indep_sum,
