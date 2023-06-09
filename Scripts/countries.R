@@ -64,7 +64,10 @@ means$region[means$isocntry %in% c("FI", "SE")] <- "Northern Europe"
 # Define colors for each region
 colors <- c("red", "blue", "green", "orange")
 
-# Create boxplot with colors
+# Create ordered boxplot with colors
+mean_values_boxplot <- aggregate(qc5_6 ~ region, data = means, FUN = mean)
+ordered_regions <- mean_values_boxplot$region[order(mean_values_boxplot$qc5_6)]
+means$region <- factor(means$region, levels = ordered_regions)
 boxplot(qc5_6 ~ region, data = means, col = colors,
         xlab = "Region", ylab = "qc5_6",
         main = "Boxplot of qc5_6 by Region")
