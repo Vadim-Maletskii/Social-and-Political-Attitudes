@@ -187,19 +187,32 @@ boxplot(combined_problems, col = "skyblue", main = "Relationship between the per
         ylab='Mean of combined dependent variables', xlab='Main national problem (according to the respondent)')
 
 
-# Countries with NAs ----
-# "AL" Albania
-# "BA" Bosnia and Herzegovina
-# "GB" Great Britain
-# "ME" Montenegro
-# "MK" North Macedonia
-# "RS" Kosovo
-# "CY-TCC" Cyprus TCC
-# "TR" Turkey
-# "IS" Iceland
-# "CH" Switzerland
-# "NO" Norway
-
+# EU variables and dep_sum
+eu_dep <- nona_variables %>% select(qa8_4, qa8_8, qa8_9, dep_sum)
+eu_dep <- eu_dep %>%
+  mutate(qa8_4 = case_when(
+    qa8_4 == 1 ~ 4,
+    qa8_4 == 2 ~ 3,
+    qa8_4 == 3 ~ 2,
+    qa8_4 == 4 ~ 1,
+    TRUE ~ qa8_4
+  ),
+  qa8_8 = case_when(
+    qa8_8 == 1 ~ 4,
+    qa8_8 == 2 ~ 3,
+    qa8_8 == 3 ~ 2,
+    qa8_8 == 4 ~ 1,
+    TRUE ~ qa8_8
+  ),
+  qa8_9 = case_when(
+    qa8_9 == 1 ~ 4,
+    qa8_9 == 2 ~ 3,
+    qa8_9 == 3 ~ 2,
+    qa8_9 == 4 ~ 1,
+    TRUE ~ qa8_9
+  ))
+eu_dep$indep_sum <- eu_dep$qa8_4 + eu_dep$qa8_8 + eu_dep$qa8_9
+summary(lm(eu_dep$dep_sum ~ eu_dep$indep_sum))
 # qe1_2 graph (satisfaction in) ----
 all_response <- euro %>% select(isocntry, qa3.3, qa3.15, qa3.16, qa6a_4, qa6a_12, qa8_8, qa8_9,
                                  qe1_2)
@@ -212,6 +225,8 @@ barplot(means_response$qe1_2, names.arg = means_response$isocntry,
 
 summary(lm(dep_sum ~ qa3.3 + qa3.15 + qa3.16, data=nona_variables))
 
+# NOT NEEDED ----
+# Army and NATO
 # Army to factor
 nona_variables$qa6a_4 <- factor(nona_variables$qa6a_4)
 levels(nona_variables$qa6a_4) <- c("1", "0")
@@ -225,3 +240,15 @@ nona_variables$qa6a_12 <- factor(nona_variables$qa6a_12)
 levels(nona_variables$qa6a_12) <- c("1", "0")
 boxplot(dep_sum ~ qa6a_12, data=nona_variables)
 nato <- aggregate(dep_sum ~ qa6a_12, data = nona_variables, FUN = mean)
+# Countries with NAs ----
+# "AL" Albania
+# "BA" Bosnia and Herzegovina
+# "GB" Great Britain
+# "ME" Montenegro
+# "MK" North Macedonia
+# "RS" Kosovo
+# "CY-TCC" Cyprus TCC
+# "TR" Turkey
+# "IS" Iceland
+# "CH" Switzerland
+# "NO" Norway
