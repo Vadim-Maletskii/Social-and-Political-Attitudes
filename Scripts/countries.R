@@ -186,7 +186,7 @@ dep_vars <- nona_variables %>% select(qe2_1, qe2_2, qe2_3, qe2_4, qe2_5, qe2_6)
 dep_cor <- cor(dep_vars)
 dep_cor
 scree(dep_cor)
-principal(dep_cor, nfactors = 1, rotate='varimax')
+principal(dep_cor, nfactors = 2, rotate='varimax')
 
 # If we group the dependent variables together and make a new variable (sum of them) ----
 nona_variables$dep_sum <- nona_variables$qe2_1 + nona_variables$qe2_2 + nona_variables$qe2_3 +
@@ -226,7 +226,7 @@ barplot(means_dep_vars$dep_sum, names.arg = means_dep_vars$isocntry,
 mean(nona_variables$dep_sum)
 abline(h=mean(nona_variables$dep_sum), lty=2)
 
-# Main problems: t-tests ----
+# Main problems: t-tests & boxplot ----
 nona_variables %>% group_by(qa3.3) %>% summarise(mean_dep_sum = mean(dep_sum))
 nona_variables %>% group_by(qa3.15) %>% summarise(mean_dep_sum = mean(dep_sum))
 prices0 <- nona_variables %>% filter(qa3.3 == 0) %>% select(dep_sum)
@@ -241,20 +241,32 @@ t.test(energy0, energy1)
 t.test(energy1, inter1)
 t.test(prices1, energy1)
 
-# Boxplots: main problems ----
-problems_inter <- inter1$dep_sum
-problems_energy <- energy1$dep_sum
-problems_prices <- prices1$dep_sum
-combined_problems <- list(problems_inter = problems_inter, problems_energy = problems_energy, problems_prices = problems_prices)
-names(combined_problems) <- c('International situation', 'Energy supply', 'Rising prices')
-boxplot(combined_problems, col = "skyblue", main = "Relationship between the person's main national problem\nand their attitude to EU's response to the invasion",
-        ylab='Mean of combined dependent variables', xlab='Main national problem (according to the respondent)')
+# Boxplot: main problems
+problems_summed <- nona_variables %>% select(qa3.15, qa3.16, dep_sum)
+problems_summed$indep_sum <- problems_summed$qa3.15 + problems_summed$qa3.16
+problems_summed <- problems_summed %>% select(indep_sum, dep_sum)
+problems_summed %>% ggplot() + geom_boxplot(aes(x= indep_sum, y=dep_sum, group=indep_sum))
+
+# Boxplots: main problems OLD
+# problems_inter <- inter1$dep_sum
+# problems_energy <- energy1$dep_sum
+# problems_prices <- prices1$dep_sum
+# combined_problems <- list(problems_inter = problems_inter, problems_energy = problems_energy, problems_prices = problems_prices)
+# names(combined_problems) <- c('International situation', 'Energy supply', 'Rising prices')
+# boxplot(combined_problems, col = "skyblue", main = "Relationship between the person's main national problem\nand their attitude to EU's response to the invasion",
+#         ylab='Mean of combined dependent variables', xlab='Main national problem (according to the respondent)')
 
 
 # EU variables and dep_sum ----
 eu_dep <- nona_variables %>% select(qa8_4, qa8_8, qa8_9, dep_sum)
 eu_dep$indep_sum <- eu_dep$qa8_4 + eu_dep$qa8_8 + eu_dep$qa8_9
+
+# Regression: sum of dependent ~ sum of independent
 summary(lm(eu_dep$dep_sum ~ eu_dep$indep_sum))
+
+# Boxplot DRAFT
+eu_dep_box <- eu_dep %>% select(indep_sum, dep_sum) %>% filter(indep_sum %in% c(3, 6, 9, 12))
+eu_dep_box %>% ggplot() + geom_boxplot(aes(x= indep_sum, y=dep_sum, group=indep_sum))
 
 # qe1_2 graph (satisfaction in) ----
 all_response <- euro %>% select(isocntry, qa3.3, qa3.15, qa3.16, qa6a_4, qa6a_12, qa8_8, qa8_9,
@@ -266,7 +278,6 @@ barplot(means_response$qe1_2, names.arg = means_response$isocntry,
         main = "Means of dep vars across isocntry ", las = 2)
 
 
-summary(lm(dep_sum ~ qa3.3 + qa3.15 + qa3.16, data=nona_variables))
 
 # NOT NEEDED ----
 # Army and NATO
