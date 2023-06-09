@@ -28,6 +28,12 @@ all_variables <- euro %>% select(isocntry, qa3.3, qa3.15, qa3.16, qa6a_4, qa6a_1
 nona_variables <- na.omit(all_variables)
 nona_variables <- filter(nona_variables, !(qa6a_4 %in% c(3,9)), qa6a_12 != 3, !(qa8_4 %in% c(5,9)),
                          qa8_8 != 5, qa8_9 != 5)
+nona_variables <- subset(nona_variables, !grepl("5", qe2_1))
+nona_variables <- subset(nona_variables, !grepl("5", qe2_2))
+nona_variables <- subset(nona_variables, !grepl("5", qe2_3))
+nona_variables <- subset(nona_variables, !grepl("5", qe2_4))
+nona_variables <- subset(nona_variables, !grepl("5", qe2_5))
+nona_variables <- subset(nona_variables, !grepl("5", qe2_6))
 
 nona_variables <- nona_variables %>%
   mutate(qe2_1 = case_when(
@@ -93,7 +99,12 @@ nona_variables <- nona_variables %>%
     qa8_9 == 4 ~ 1,
     TRUE ~ qa8_9
   ))
-
+table(nona_variables$qe2_1)
+table(nona_variables$qe2_2)
+table(nona_variables$qe2_3)
+table(nona_variables$qe2_4)
+table(nona_variables$qe2_5)
+table(nona_variables$qe2_6)
 # Find unique values of isocntry in the dataset euro
 unique_countries <- unique(nona_variables$isocntry)
 
@@ -189,9 +200,12 @@ dep_cor
 scree(dep_cor)
 principal(dep_cor, nfactors = 2, rotate='varimax')
 
-# If we group the dependent variables together and make a new variable (sum of them) ----
+# SUMMING THE DEPENDENT ----
 nona_variables$dep_sum <- nona_variables$qe2_1 + nona_variables$qe2_2 + nona_variables$qe2_3 +
   nona_variables$qe2_4 + nona_variables$qe2_5 + nona_variables$qe2_6
+nona_variables$dep_sum <- nona_variables$dep_sum - 6
+range(nona_variables$dep_sum)
+
 table(nona_variables$dep_sum)
 means_dep_vars <- aggregate(dep_sum ~ isocntry, data = nona_variables, FUN = mean)
 means_dep_vars <- means_dep_vars[order(means_dep_vars$dep_sum), ]
@@ -266,18 +280,19 @@ pers_values %>% ggplot() + geom_boxplot(aes(x= indep_sum, y=dep_sum, group=indep
 # EU variables and dep_sum ----
 eu_dep <- nona_variables %>% select(qa8_4, qa8_8, qa8_9, dep_sum)
 eu_dep$indep_sum <- eu_dep$qa8_4 + eu_dep$qa8_8 + eu_dep$qa8_9
+eu_dep$indep_sum <- eu_dep$indep_sum - 3
 
 # Regression: sum of dependent ~ sum of independent
 summary(lm(eu_dep$dep_sum ~ eu_dep$indep_sum))
 
 # Boxplot DRAFT
-eu_dep_box <- eu_dep %>% select(indep_sum, dep_sum) %>% filter(indep_sum %in% c(3, 6, 9, 12))
+eu_dep_box <- eu_dep %>% select(indep_sum, dep_sum) %>% filter(indep_sum %in% c(0, 3, 6, 9))
 eu_dep_box %>% ggplot() + geom_boxplot(aes(x= indep_sum, y=dep_sum, group=indep_sum))
 
 
 lm_data <- data.frame(pers_values=pers_values$indep_sum, problems=problems_summed$indep_sum, eu=eu_dep$indep_sum,
                       dep=eu_dep$dep_sum)
-summary(lm(dep ~ pers_values*problems*eu, data=lm_data))
+lm_all <- lm(dep ~ pers_values + problems + eu, data=lm_data)
 
 # qe1_2 graph (satisfaction in) ----
 all_response <- euro %>% select(isocntry, qa3.3, qa3.15, qa3.16, qa6a_4, qa6a_12, qa8_8, qa8_9,
@@ -287,7 +302,11 @@ means_response <- means_response[order(means_response$qe1_2), ]
 barplot(means_response$qe1_2, names.arg = means_response$isocntry,
         xlab = "isocntry", ylab = "Sum of dep vars",
         main = "Means of dep vars across isocntry ", las = 2)
-
+new_data <- data.frame(pers_values = 3, problems = 2, eu = 9)
+predict(lm_all, newdata = new_data)
+range(eu_dep$indep_sum)
+range(nona_variables$dep_sum)
+table(nona_variables$dep_sum)
 # NOT NEEDED ----
 # Army and NATO
 # Army to factor
