@@ -84,7 +84,7 @@ colors <- c("red", "blue", "green", "orange")
 ggplot(bar_col, aes(x = reorder(isocntry, qc5_6), y = qc5_6, fill = as.factor(region))) +
   geom_bar(stat = "identity") +
   scale_fill_manual(values = colors) +
-  labs(x = "isocntry", y = "Mean qc5_6", title = "Means of qc5_6 across isocntry") +
+  labs(x = "isocntry", y = "Mean qc5_6", title = "Means of qc5_6 across isocntry", fill='Region') +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 # barplot without colour ---- 
@@ -152,7 +152,7 @@ colors <- c("red", "blue", "green", "orange")
 ggplot(bar_col1, aes(x = reorder(isocntry, means), y = means, fill = as.factor(region))) +
   geom_bar(stat = "identity") +
   scale_fill_manual(values = colors) +
-  labs(x = "isocntry", y = "Mean", title = "Means across isocntry") +
+  labs(x = "isocntry", y = "Mean", title = "Means across isocntry", fill='Region') +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 # barplot without colors
 barplot(means_dep_vars$dep_sum, names.arg = means_dep_vars$isocntry,
@@ -161,20 +161,33 @@ barplot(means_dep_vars$dep_sum, names.arg = means_dep_vars$isocntry,
 
 mean(nona_variables$dep_sum)
 abline(h=mean(nona_variables$dep_sum), lty=2)
+
+# Main problems: t-tests ----
 nona_variables %>% group_by(qa3.3) %>% summarise(mean_dep_sum = mean(dep_sum))
 nona_variables %>% group_by(qa3.15) %>% summarise(mean_dep_sum = mean(dep_sum))
-sum(is.na(euro$qa8_5))
+prices0 <- nona_variables %>% filter(qa3.3 == 0) %>% select(dep_sum)
+prices1 <- nona_variables %>% filter(qa3.3 == 1) %>% select(dep_sum)
+energy0 <- nona_variables %>% filter(qa3.15 == 0) %>% select(dep_sum)
+energy1 <- nona_variables %>% filter(qa3.15 == 1) %>% select(dep_sum)
 inter0 <- nona_variables %>% filter(qa3.16 == 0) %>% select(dep_sum)
 inter1 <- nona_variables %>% filter(qa3.16 == 1) %>% select(dep_sum)
+t.test(prices0, prices1)
 t.test(inter0, inter1)
-boxplot()
-sum(is.na(euro$qe2_1))
+t.test(energy0, energy1)
+t.test(energy1, inter1)
+t.test(prices1, energy1)
 
-test <- euro %>% select(isocntry, qe2_1)
-test <- test[is.na(test$qe2_1), ]
-table(euro$qa3.3)
-table(euro$isocntry)
+# Boxplots: main problems ----
+problems_inter <- inter1$dep_sum
+problems_energy <- energy1$dep_sum
+problems_prices <- prices1$dep_sum
+combined_problems <- list(problems_inter = problems_inter, problems_energy = problems_energy, problems_prices = problems_prices)
+names(combined_problems) <- c('International situation', 'Energy supply', 'Rising prices')
+boxplot(combined_problems, col = "skyblue", main = "Relationship between the person's main national problem\nand their attitude to EU's response to the invasion",
+        ylab='Mean of combined dependent variables', xlab='Main national problem (according to the respondent)')
 
+
+# Countries with NAs ----
 # "AL" Albania
 # "BA" Bosnia and Herzegovina
 # "GB" Great Britain
