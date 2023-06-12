@@ -1,7 +1,6 @@
 library(readr)
 library(haven)
 library(dplyr)
-# install.packages('psych')
 library(psych)
 library(ggplot2)
 
@@ -12,15 +11,7 @@ euro = read_sav('Data_preproc/euro.sav')
 
 euro2018 <- subset(euro2018, !grepl("5", qc5_6))
 
-# Recode variable qc5_6 in dataset euro2018
-euro2018 <- euro2018 %>%
-  mutate(qc5_6 = case_when(
-    qc5_6 == 1 ~ 4,
-    qc5_6 == 2 ~ 3,
-    qc5_6 == 3 ~ 2,
-    qc5_6 == 4 ~ 1,
-    TRUE ~ qc5_6
-  ))
+
 # Independent + dependent variables
 all_variables <- euro %>% select(isocntry, qa3.3, qa3.15, qa3.16, qa6a_4, qa6a_12, qa8_4, qa8_8, qa8_9,
                                  qd6.3, qd6.6, qd6.8,
@@ -138,13 +129,17 @@ means$region[means$isocntry %in% c("BG", "CZ", "EE", "HU", "LT", "LV", "PL", "RO
 means$region[means$isocntry %in% c("FI", "SE")] <- "Northern Europe"
 
 # Define colors for each region
-colors <- c("red", "blue", "green", "orange")
+colors <- c("orange", "green", "red", "blue")
+
+# Define colors with transparency
+alpha <- 0.5  # Adjust the transparency value as needed
+colors_transparent <- adjustcolor(colors, alpha = alpha)
 
 # Create ordered boxplot with colors
 mean_values_boxplot <- aggregate(qc5_6 ~ region, data = means, FUN = mean)
 ordered_regions <- mean_values_boxplot$region[order(mean_values_boxplot$qc5_6)]
 means$region <- factor(means$region, levels = ordered_regions)
-boxplot(qc5_6 ~ region, data = means, col = colors,
+boxplot(qc5_6 ~ region, data = means, col = colors_transparent,
         xlab = "Region", ylab = "qc5_6",
         main = "Boxplot of qc5_6 by Region")
 
@@ -154,13 +149,18 @@ boxplot(qc5_6 ~ region, data = means, col = colors,
 bar_col <- data.frame(isocntry = means$isocntry, qc5_6 = means$qc5_6, region = means$region)
 
 # Define the colors based on the unique values of means$region
-colors <- c("red", "blue", "green", "orange")
+colors <- c("orange", "green", "red", "blue")
+
+# Define colors with transparency
+alpha <- 0.5  # Adjust the transparency value as needed
+colors_transparent <- adjustcolor(colors, alpha = alpha)
 
 # Create the barplot using ggplot2 with ordered bars
 ggplot(bar_col, aes(x = reorder(isocntry, qc5_6), y = qc5_6, fill = as.factor(region))) +
   geom_bar(stat = "identity") +
-  scale_fill_manual(values = colors) +
+  scale_fill_manual(values = colors_transparent) +
   labs(x = "isocntry", y = "Mean qc5_6", title = "Means of qc5_6 across isocntry", fill='Region') +
+  theme_bw()+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 # barplot without colour ---- 
@@ -226,14 +226,19 @@ means_dep_vars$region[means_dep_vars$isocntry %in% c("FI", "SE")] <- "Northern E
 bar_col1 <- data.frame(isocntry = means_dep_vars$isocntry, means = means_dep_vars$dep_sum, region = means_dep_vars$region)
 
 # Define the colors based on the unique values of means$region
-colors <- c("red", "blue", "green", "orange")
+colors <- c("orange", "blue", "green", "red")
+
+alpha <- 0.5  
+colors_transparent <- adjustcolor(colors, alpha = alpha)
 
 # Create the barplot using ggplot2 with ordered bars
 ggplot(bar_col1, aes(x = reorder(isocntry, means), y = means, fill = as.factor(region))) +
   geom_bar(stat = "identity") +
-  scale_fill_manual(values = colors) +
+  scale_fill_manual(values = colors_transparent) +
   labs(x = "isocntry", y = "Mean", title = "Means across isocntry", fill='Region') +
+  theme_bw() +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
 # barplot without colors
 barplot(means_dep_vars$dep_sum, names.arg = means_dep_vars$isocntry,
         xlab = "isocntry", ylab = "Sum of dep vars",
@@ -261,7 +266,15 @@ t.test(prices1, energy1)
 problems_summed <- nona_variables %>% select(qa3.15, qa3.16, dep_sum)
 problems_summed$indep_sum <- problems_summed$qa3.15 + problems_summed$qa3.16
 problems_summed <- problems_summed %>% select(indep_sum, dep_sum)
-problems_summed %>% ggplot() + geom_boxplot(aes(x= indep_sum, y=dep_sum, group=indep_sum))
+problems_summed %>% 
+  ggplot() +
+  geom_boxplot(aes(x = indep_sum, y = dep_sum, group = indep_sum), 
+               fill = adjustcolor("blue"),  
+               color = "black",                           
+               alpha = 0.3) +                             
+  theme_bw() +                                          
+  labs(x = "indep_sum", y = "dep_sum") +                
+  ggtitle("Boxplot of dep_sum by indep_sum")              
 
 # Boxplots: main problems OLD
 # problems_inter <- inter1$dep_sum
@@ -278,6 +291,16 @@ pers_values$indep_sum <- pers_values$qd6.3 + pers_values$qd6.6 + pers_values$qd6
 pers_values <- pers_values %>% select(indep_sum, dep_sum)
 pers_values %>% group_by(indep_sum) %>% summarise(mean = mean(dep_sum))
 pers_values %>% ggplot() + geom_boxplot(aes(x= indep_sum, y=dep_sum, group=indep_sum))
+
+pers_values %>% 
+  ggplot() +
+  geom_boxplot(aes(x = indep_sum, y = dep_sum, group = indep_sum),
+               fill = adjustcolor("blue"),
+               color = "black",
+               alpha = 0.3) +
+  theme_bw() +
+  labs(x = "indep_sum", y = "dep_sum") +
+  ggtitle("Boxplot of dep_sum by indep_sum")
 # EU variables and dep_sum ----
 eu_dep <- nona_variables %>% select(qa8_4, qa8_8, qa8_9, dep_sum)
 eu_dep$indep_sum <- eu_dep$qa8_4 + eu_dep$qa8_8 + eu_dep$qa8_9
@@ -288,7 +311,16 @@ summary(lm(eu_dep$dep_sum ~ eu_dep$indep_sum))
 
 # Boxplot DRAFT
 eu_dep_box <- eu_dep %>% select(indep_sum, dep_sum) %>% filter(indep_sum %in% c(0, 3, 6, 9))
-eu_dep_box %>% ggplot() + geom_boxplot(aes(x= indep_sum, y=dep_sum, group=indep_sum))
+eu_dep_box %>% 
+  ggplot() +
+  geom_boxplot(aes(x = indep_sum, y = dep_sum, group = indep_sum),
+               fill = adjustcolor("blue"),
+               color = "black",
+               alpha = 0.3) +
+  theme_bw() +
+  labs(x = "indep_sum", y = "dep_sum") +
+  ggtitle("Boxplot of dep_sum by indep_sum")
+
 eu_dep_box %>% group_by(indep_sum) %>% summarise(mean = mean(dep_sum))
 table(nona_variables$dep_sum)
 
