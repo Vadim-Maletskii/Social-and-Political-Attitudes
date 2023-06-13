@@ -236,7 +236,7 @@ colors_transparent <- adjustcolor(colors, alpha = alpha)
 ggplot(bar_col1, aes(x = reorder(isocntry, means), y = means, fill = as.factor(region))) +
   geom_bar(stat = "identity") +
   scale_fill_manual(values = colors_transparent) +
-  labs(x = "isocntry", y = "Mean", title = "Means across isocntry", fill='Region') +
+  labs(x = "isocntry", y = "Mean", title = "Attitude to the EU's response (summed) across countries", fill='Region') +
   theme_bw() +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
@@ -274,8 +274,8 @@ problems_summed %>%
                color = "black",                           
                alpha = 0.3) +                             
   theme_bw() +                                          
-  labs(x = "indep_sum", y = "dep_sum") +                
-  ggtitle("Boxplot of dep_sum by indep_sum")              
+  labs(x = "Number of national problems noted", y = "Attitude to the EU's response (summed)") +                
+  ggtitle("Relationship between the number of national problems noted\nand the attitude to the EU's response (summed)")              
 
 # Boxplots: main problems OLD
 # problems_inter <- inter1$dep_sum
@@ -300,8 +300,8 @@ pers_values %>%
                color = "black",
                alpha = 0.3) +
   theme_bw() +
-  labs(x = "indep_sum", y = "dep_sum") +
-  ggtitle("Boxplot of dep_sum by indep_sum")
+  labs(x = "Number of personal values related to care about human life noted", y = "Attitude to the EU's response (summed)") +
+  ggtitle("Relationship between personal values related to care about human life noted\nand the attitude to the EU's response (summed)")
 # EU variables and dep_sum ----
 eu_dep <- nona_variables %>% select(qa8_4, qa8_8, qa8_9, dep_sum)
 eu_dep$indep_sum <- eu_dep$qa8_4 + eu_dep$qa8_8 + eu_dep$qa8_9
@@ -312,16 +312,17 @@ summary(lm(eu_dep$dep_sum ~ eu_dep$indep_sum))
 
 # Boxplot DRAFT
 eu_dep_box <- eu_dep %>% select(indep_sum, dep_sum) %>% filter(indep_sum %in% c(0, 3, 6, 9))
-eu_dep_box %>% 
+eu_dep %>% 
   ggplot() +
   geom_boxplot(aes(x = indep_sum, y = dep_sum, group = indep_sum),
                fill = adjustcolor("blue"),
                color = "black",
                alpha = 0.3) +
   theme_bw() +
-  labs(x = "indep_sum", y = "dep_sum") +
-  ggtitle("Boxplot of dep_sum by indep_sum")
+  labs(x = "Attitude to the EU", y = "Attitude to the EU's response (summed)") +
+  ggtitle("Relationship between one's attitude to the EU\nand their attitude to the EU's response (summed)")
 
+table(eu_dep$indep_sum)
 eu_dep_box %>% group_by(indep_sum) %>% summarise(mean = mean(dep_sum))
 table(nona_variables$dep_sum)
 
@@ -329,6 +330,7 @@ table(nona_variables$dep_sum)
 lm_data <- data.frame(pers_values=pers_values$indep_sum, problems=problems_summed$indep_sum, eu=eu_dep$indep_sum,
                       dep=eu_dep$dep_sum)
 lm_all <- lm(dep ~ pers_values + problems + eu, data=lm_data)
+summary(lm_all)
 
 # qe1_2 graph (satisfaction in) ----
 all_response <- euro %>% select(isocntry, qa3.3, qa3.15, qa3.16, qa6a_4, qa6a_12, qa8_8, qa8_9,
