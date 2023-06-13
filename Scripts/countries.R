@@ -159,9 +159,21 @@ colors_transparent <- adjustcolor(colors, alpha = alpha)
 ggplot(bar_col, aes(x = reorder(isocntry, qc5_6), y = qc5_6, fill = as.factor(region))) +
   geom_bar(stat = "identity") +
   scale_fill_manual(values = colors_transparent) +
-  labs(x = "isocntry", y = "Mean qc5_6", title = "View on Russia across countries (the less the value, the more positive the view)", fill='Region') +
-  theme_bw()+
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+  labs(x = "Country", y = "Mean score", title = "View on Russia across countries (the less the value, the more positive the view)", fill = 'Region') +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 16),       
+        axis.text.y = element_text(size = 16, hjust = 0),                               
+        plot.title = element_blank(),
+        legend.text = element_text(size = 18),                              
+        legend.title = element_text(size = 18),
+        axis.text = element_text(size = 16),
+        axis.title.x = element_text(size = 22, margin = margin(t = 10)),
+        axis.title.y = element_text(size = 22, margin = margin(r = 10)),
+        legend.key.height = unit(2, "line"))+
+  scale_y_continuous(expand = expansion(add = c(0, 0.05)))
+  
+  
+
 
 # barplot without colour ---- 
 # Create a bar plot of the means in ascending order
@@ -236,9 +248,18 @@ colors_transparent <- adjustcolor(colors, alpha = alpha)
 ggplot(bar_col1, aes(x = reorder(isocntry, means), y = means, fill = as.factor(region))) +
   geom_bar(stat = "identity") +
   scale_fill_manual(values = colors_transparent) +
-  labs(x = "isocntry", y = "Mean", title = "Attitude to the EU's response (summed) across countries", fill='Region') +
+  labs(x = "Country", y = "Mean score", title = "Attitude to the EU's response (summed) across countries", fill='Region') +
   theme_bw() +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 16),       
+        axis.text.y = element_text(size = 16, hjust = 0),                               
+        plot.title = element_blank(),
+        legend.text = element_text(size = 18),                              
+        legend.title = element_text(size = 18),
+        axis.text = element_text(size = 16),
+        axis.title.x = element_text(size = 22, margin = margin(t = 10)),
+        axis.title.y = element_text(size = 22, margin = margin(r = 10)),
+        legend.key.height = unit(2, "line"))+
+  scale_y_continuous(expand = expansion(add = c(0, 0.05)))
 
 # barplot without colors
 barplot(means_dep_vars$dep_sum, names.arg = means_dep_vars$isocntry,
@@ -275,7 +296,15 @@ problems_summed %>%
                alpha = 0.3) +                             
   theme_bw() +                                          
   labs(x = "Number of national problems noted", y = "Attitude to the EU's response (summed)") +                
-  ggtitle("Relationship between the number of national problems noted\nand the attitude to the EU's response (summed)")              
+  ggtitle("Relationship between the number of national problems noted\nand the attitude to the EU's response (summed)")+
+  theme_bw() +
+  theme(axis.text.x = element_text (size = 14),       
+        axis.text.y = element_text(size = 14),                               
+        plot.title = element_blank(),
+        axis.text = element_text(size = 16),
+        axis.title.x = element_text(size = 22, margin = margin(t = 10)),
+        axis.title.y = element_text(size = 22, margin = margin(r = 10)),
+        legend.key.height = unit(2, "line"))
 
 # Boxplots: main problems OLD
 # problems_inter <- inter1$dep_sum
@@ -301,7 +330,15 @@ pers_values %>%
                alpha = 0.3) +
   theme_bw() +
   labs(x = "Number of personal values related to care about human life noted", y = "Attitude to the EU's response (summed)") +
-  ggtitle("Relationship between personal values related to care about human life noted\nand the attitude to the EU's response (summed)")
+  ggtitle("Relationship between personal values related to care about human life noted\nand the attitude to the EU's response (summed)")+
+  theme_bw() +
+  theme(axis.text.x = element_text (size = 14),       
+        axis.text.y = element_text(size = 14),                               
+        plot.title = element_blank(),
+        axis.text = element_text(size = 16),
+        axis.title.x = element_text(size = 22, margin = margin(t = 10)),
+        axis.title.y = element_text(size = 22, margin = margin(r = 10)),
+        legend.key.height = unit(2, "line"))
 # EU variables and dep_sum ----
 eu_dep <- nona_variables %>% select(qa8_4, qa8_8, qa8_9, dep_sum)
 eu_dep$indep_sum <- eu_dep$qa8_4 + eu_dep$qa8_8 + eu_dep$qa8_9
@@ -320,7 +357,15 @@ eu_dep %>%
                alpha = 0.3) +
   theme_bw() +
   labs(x = "Attitude to the EU", y = "Attitude to the EU's response (summed)") +
-  ggtitle("Relationship between one's attitude to the EU\nand their attitude to the EU's response (summed)")
+  ggtitle("Relationship between one's attitude to the EU\nand their attitude to the EU's response (summed)")+
+  theme_bw() +
+  theme(axis.text.x = element_text (size = 14),       
+        axis.text.y = element_text(size = 14),                               
+        plot.title = element_blank(),
+        axis.text = element_text(size = 16),
+        axis.title.x = element_text(size = 22, margin = margin(t = 10)),
+        axis.title.y = element_text(size = 22, margin = margin(r = 10)),
+        legend.key.height = unit(2, "line"))
 
 table(eu_dep$indep_sum)
 eu_dep_box %>% group_by(indep_sum) %>% summarise(mean = mean(dep_sum))
