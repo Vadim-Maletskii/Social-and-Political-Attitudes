@@ -212,6 +212,23 @@ dep_cor
 scree(dep_cor)
 principal(dep_cor, nfactors = 2, rotate='varimax')
 
+eigenvalues <- eigen(dep_cor)$values
+
+# Create a data frame for the scree plot
+scree_data <- data.frame(Components = 1:length(eigenvalues), Eigenvalues = eigenvalues)
+
+# Plot the scree plot
+ggplot(scree_data, aes(x = Components, y = Eigenvalues)) +
+  geom_point(size = 3, color = "blue") +
+  geom_line(color = "blue") +
+  scale_x_continuous(breaks = seq(1, length(eigenvalues), by = 1)) +
+  scale_y_continuous(limits = c(0, max(eigenvalues) * 1.1)) +
+  labs(x = "Components", y = "Eigenvalues", title = "Scree plot of a dependent variale") +
+  theme_bw() +
+  theme(plot.title = element_text(size = 16, face = "bold"),
+        axis.text = element_text(size = 12),
+        axis.title = element_text(size = 14, face = "bold"))
+
 # SUMMING THE DEPENDENT ----
 nona_variables$dep_sum <- nona_variables$qe2_1 + nona_variables$qe2_2 + nona_variables$qe2_3 +
   nona_variables$qe2_4 + nona_variables$qe2_5 + nona_variables$qe2_6
