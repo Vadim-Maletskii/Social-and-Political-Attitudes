@@ -141,7 +141,7 @@ ordered_regions <- mean_values_boxplot$region[order(mean_values_boxplot$qc5_6)]
 means$region <- factor(means$region, levels = ordered_regions)
 boxplot(qc5_6 ~ region, data = means, col = colors_transparent,
         xlab = "Region", ylab = "qc5_6",
-        main = "Boxplot of qc5_6 by Region")
+        main = "Boxplot of view on Russia by Region")
 
 # Barplot colored ---- 
 
@@ -159,7 +159,7 @@ colors_transparent <- adjustcolor(colors, alpha = alpha)
 ggplot(bar_col, aes(x = reorder(isocntry, qc5_6), y = qc5_6, fill = as.factor(region))) +
   geom_bar(stat = "identity") +
   scale_fill_manual(values = colors_transparent) +
-  labs(x = "isocntry", y = "Mean qc5_6", title = "Means of qc5_6 across isocntry", fill='Region') +
+  labs(x = "isocntry", y = "Mean qc5_6", title = "View on Russia across countries (the less the value, the more positive the view)", fill='Region') +
   theme_bw()+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
@@ -206,6 +206,7 @@ nona_variables$dep_sum <- nona_variables$qe2_1 + nona_variables$qe2_2 + nona_var
 nona_variables$dep_sum <- nona_variables$dep_sum - 6
 range(nona_variables$dep_sum)
 hist(nona_variables$dep_sum)
+plot(density(nona_variables$dep_sum))
 
 table(nona_variables$dep_sum)
 means_dep_vars <- aggregate(dep_sum ~ isocntry, data = nona_variables, FUN = mean)
