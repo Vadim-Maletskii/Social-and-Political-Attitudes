@@ -140,8 +140,10 @@ mean_values_boxplot <- aggregate(qc5_6 ~ region, data = means, FUN = mean)
 ordered_regions <- mean_values_boxplot$region[order(mean_values_boxplot$qc5_6)]
 means$region <- factor(means$region, levels = ordered_regions)
 boxplot(qc5_6 ~ region, data = means, col = colors_transparent,
-        xlab = "Region", ylab = "qc5_6",
-        main = "Boxplot of view on Russia by Region")
+        xlab = "Region", ylab = "View on Russia",
+        main = "Boxplot of view on Russia by Region",  cex.lab = 1.5)
+
+
 
 # Barplot colored ---- 
 
@@ -167,8 +169,8 @@ ggplot(bar_col, aes(x = reorder(isocntry, qc5_6), y = qc5_6, fill = as.factor(re
         legend.text = element_text(size = 18),                              
         legend.title = element_text(size = 18),
         axis.text = element_text(size = 16),
-        axis.title.x = element_text(size = 22, margin = margin(t = 10)),
-        axis.title.y = element_text(size = 22, margin = margin(r = 10)),
+        axis.title.x = element_text(size = 22, face = "bold", margin = margin(t = 8)),
+        axis.title.y = element_text(size = 22, face = "bold", margin = margin(r = 10)),
         legend.key.height = unit(2, "line"))+
   scale_y_continuous(expand = expansion(add = c(0, 0.05)))
   
@@ -210,7 +212,7 @@ dep_vars <- nona_variables %>% select(qe2_1, qe2_2, qe2_3, qe2_4, qe2_5, qe2_6)
 dep_cor <- cor(dep_vars)
 dep_cor
 scree(dep_cor)
-principal(dep_cor, nfactors = 2, rotate='varimax')
+principal(dep_cor, nfactors = 1, rotate='varimax')
 
 eigenvalues <- eigen(dep_cor)$values
 
@@ -223,12 +225,13 @@ ggplot(scree_data, aes(x = Components, y = Eigenvalues)) +
   geom_line(color = "blue") +
   scale_x_continuous(breaks = seq(1, length(eigenvalues), by = 1)) +
   scale_y_continuous(limits = c(0, max(eigenvalues) * 1.1)) +
-  labs(x = "Components", y = "Eigenvalues", title = "Scree plot of a dependent variale") +
+  labs(x = "Components", y = "Eigenvalues", title = "Scree plot of a dependent variable") +
   theme_bw() +
-  theme(plot.title = element_text(size = 16, face = "bold"),
-        axis.text = element_text(size = 12),
-        axis.title = element_text(size = 14, face = "bold"))
-
+  theme(plot.title = element_blank(),
+        axis.text = element_text(size = 16, face = "bold"),
+        axis.title.x = element_text(size = 22, face = "bold", margin = margin(t = 10)),
+        axis.title.y = element_text(size = 22, face = "bold", margin = margin(r = 10)))
+        
 # SUMMING THE DEPENDENT ----
 nona_variables$dep_sum <- nona_variables$qe2_1 + nona_variables$qe2_2 + nona_variables$qe2_3 +
   nona_variables$qe2_4 + nona_variables$qe2_5 + nona_variables$qe2_6
@@ -273,8 +276,8 @@ ggplot(bar_col1, aes(x = reorder(isocntry, means), y = means, fill = as.factor(r
         legend.text = element_text(size = 18),                              
         legend.title = element_text(size = 18),
         axis.text = element_text(size = 16),
-        axis.title.x = element_text(size = 22, margin = margin(t = 10)),
-        axis.title.y = element_text(size = 22, margin = margin(r = 10)),
+        axis.title.x = element_text(size = 22, face = "bold", margin = margin(t = 10)),
+        axis.title.y = element_text(size = 22, face = "bold", margin = margin(r = 10)),
         legend.key.height = unit(2, "line"))+
   scale_y_continuous(expand = expansion(add = c(0, 0.05)))
 
@@ -285,6 +288,7 @@ barplot(means_dep_vars$dep_sum, names.arg = means_dep_vars$isocntry,
 
 mean(nona_variables$dep_sum)
 abline(h=mean(nona_variables$dep_sum), lty=2)
+
 
 # Main problems: t-tests & boxplot ----
 nona_variables %>% group_by(qa3.3) %>% summarise(mean_dep_sum = mean(dep_sum))
@@ -319,8 +323,8 @@ problems_summed %>%
         axis.text.y = element_text(size = 14),                               
         plot.title = element_blank(),
         axis.text = element_text(size = 16),
-        axis.title.x = element_text(size = 22, margin = margin(t = 10)),
-        axis.title.y = element_text(size = 22, margin = margin(r = 10)),
+        axis.title.x = element_text(size = 22, face = "bold", margin = margin(t = 10)),
+        axis.title.y = element_text(size = 22, face = "bold", margin = margin(r = 10)),
         legend.key.height = unit(2, "line"))
 
 # Boxplots: main problems OLD
@@ -353,8 +357,8 @@ pers_values %>%
         axis.text.y = element_text(size = 14),                               
         plot.title = element_blank(),
         axis.text = element_text(size = 16),
-        axis.title.x = element_text(size = 22, margin = margin(t = 10)),
-        axis.title.y = element_text(size = 22, margin = margin(r = 10)),
+        axis.title.x = element_text(size = 22, face = "bold", margin = margin(t = 10)),
+        axis.title.y = element_text(size = 22, face = "bold", margin = margin(r = 10)),
         legend.key.height = unit(2, "line"))
 # EU variables and dep_sum ----
 eu_dep <- nona_variables %>% select(qa8_4, qa8_8, qa8_9, dep_sum)
@@ -365,8 +369,8 @@ eu_dep$indep_sum <- eu_dep$indep_sum - 3
 summary(lm(eu_dep$dep_sum ~ eu_dep$indep_sum))
 
 # Boxplot DRAFT
-eu_dep_box <- eu_dep %>% select(indep_sum, dep_sum) %>% filter(indep_sum %in% c(0, 3, 6, 9))
-eu_dep %>% 
+eu_dep_box <- eu_dep %>% select(indep_sum, dep_sum) %>% filter(indep_sum %in% c(0,1,2, 3,4,5, 6,7,8, 9))
+eu_dep_box %>% 
   ggplot() +
   geom_boxplot(aes(x = indep_sum, y = dep_sum, group = indep_sum),
                fill = adjustcolor("blue"),
@@ -380,8 +384,8 @@ eu_dep %>%
         axis.text.y = element_text(size = 14),                               
         plot.title = element_blank(),
         axis.text = element_text(size = 16),
-        axis.title.x = element_text(size = 22, margin = margin(t = 10)),
-        axis.title.y = element_text(size = 22, margin = margin(r = 10)),
+        axis.title.x = element_text(size = 22, face = "bold", margin = margin(t = 10)),
+        axis.title.y = element_text(size = 22, face = "bold", margin = margin(r = 10)),
         legend.key.height = unit(2, "line"))
 
 table(eu_dep$indep_sum)
@@ -434,3 +438,4 @@ nato <- aggregate(dep_sum ~ qa6a_12, data = nona_variables, FUN = mean)
 # "IS" Iceland
 # "CH" Switzerland
 # "NO" Norway
+
